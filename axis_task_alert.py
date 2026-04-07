@@ -66,12 +66,11 @@ def get_axis_tasks():
         return []
 
 # ==========================================
-# ==========================================
-# PHẦN 4: LOGIC QUÉT VÀ LỌC TASK MỚI
+# PHẦN 4: LOGIC QUÉT VÀ LỌC TASK MỚI (ĐÃ CÓ LINK TRỰC TIẾP)
 # ==========================================
 def bot_thong_bao_task():
     global seen_task_ids
-    is_first_run = False # Đặt cờ lần đầu tiên
+    is_first_run = Fasle 
 
     print("Bắt đầu khởi chạy vòng lặp check task...")
     
@@ -90,27 +89,28 @@ def bot_thong_bao_task():
                     seen_task_ids.add(task_id) 
                     
                     if not is_first_run:
-                        new_tasks_found.append(task_name) 
+                        # TẠO LINK TRỰC TIẾP CHO TASK
+                        task_link = f"https://hub.axisrobotics.ai/action?id={task_id}"
+                        # Gắn link vào tên task bằng thẻ <a> của HTML
+                        new_tasks_found.append(f"🔹 <a href='{task_link}'>{task_name}</a>")
             
             if new_tasks_found:
-                formatted_list = "\n".join([f"🔹 {name}" for name in new_tasks_found])
+                formatted_list = "\n".join(new_tasks_found)
                 
                 msg = f"📢 <b>CÓ {len(new_tasks_found)} TASK MỚI:</b>\n\n"
-                msg += formatted_list
+                msg += formatted_list # Danh sách tên task giờ đã có thể bấm được
                 msg += f"\n\n🔗 <a href='https://hub.axisrobotics.ai/?tab=hub'>Mở Axis Hub</a>"
                 
                 send_telegram_message(msg)
             
             if is_first_run:
-                is_first_run = False # QUAN TRỌNG: Phải chốt lại là False để các vòng sau nó biết đường báo cáo
+                is_first_run = False 
                 print(f"Lần chạy đầu: Ghi nhớ {len(seen_task_ids)} task cũ. Bắt đầu rình task mới...")
                 
         except Exception as e:
             print("Lỗi vòng lặp:", e)
         
-        # Đã đổi thành 30 giây theo ý bạn
         time.sleep(30)
-
 # ==========================================
 # PHẦN 5: KHỞI CHẠY CHƯƠNG TRÌNH
 # ==========================================
