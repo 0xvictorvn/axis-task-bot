@@ -70,7 +70,7 @@ def get_axis_tasks():
 # ==========================================
 def bot_thong_bao_task():
     global seen_task_ids
-    is_first_run = False 
+    is_first_run = True 
 
     print("Bắt đầu khởi chạy vòng lặp check task...")
     
