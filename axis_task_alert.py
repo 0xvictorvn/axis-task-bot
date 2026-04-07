@@ -112,7 +112,7 @@ def bot_thong_bao_task():
             print("Lỗi vòng lặp:", e)
         
         # Ngủ 60 giây rồi mới quay lại quét tiếp
-        time.sleep(60)
+        time.sleep(30)
 
 # ==========================================
 # PHẦN 5: KHỞI CHẠY CHƯƠNG TRÌNH
