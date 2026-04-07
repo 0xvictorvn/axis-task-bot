@@ -71,13 +71,10 @@ def get_axis_tasks():
 # ==========================================
 def bot_thong_bao_task():
     global seen_task_ids
-    is_first_run = True # Đặt cờ lần đầu tiên
+    is_first_run = False # Đặt cờ lần đầu tiên
 
     print("Bắt đầu khởi chạy vòng lặp check task...")
     
-    # GỬI TIN NHẮN TEST LUÔN ĐỂ KIỂM TRA BOT SỐNG
-    send_telegram_message("✅ <b>TEST THÀNH CÔNG:</b> Bot đã cập nhật tốc độ 30s/lần và đang canh task nhé!")
-
     while True:
         try:
             tasks = get_axis_tasks()
