@@ -66,13 +66,17 @@ def get_axis_tasks():
         return []
 
 # ==========================================
+# ==========================================
 # PHẦN 4: LOGIC QUÉT VÀ LỌC TASK MỚI
 # ==========================================
 def bot_thong_bao_task():
     global seen_task_ids
-    is_first_run = True
+    is_first_run = True # Đặt cờ lần đầu tiên
 
     print("Bắt đầu khởi chạy vòng lặp check task...")
+    
+    # GỬI TIN NHẮN TEST LUÔN ĐỂ KIỂM TRA BOT SỐNG
+    send_telegram_message("✅ <b>TEST THÀNH CÔNG:</b> Bot đã cập nhật tốc độ 30s/lần và đang canh task nhé!")
 
     while True:
         try:
@@ -85,14 +89,12 @@ def bot_thong_bao_task():
                 
                 if not task_id: continue
                 
-                # Kiểm tra xem đây có phải task mới chưa từng thấy không
                 if task_id not in seen_task_ids:
-                    seen_task_ids.add(task_id) # Lưu lại ID để lần sau không báo nữa
+                    seen_task_ids.add(task_id) 
                     
                     if not is_first_run:
-                        new_tasks_found.append(task_name) # Thêm tên task vào danh sách chờ báo cáo
+                        new_tasks_found.append(task_name) 
             
-            # Nếu phát hiện có task mới (sau khi đã gom xong 1 mẻ)
             if new_tasks_found:
                 formatted_list = "\n".join([f"🔹 {name}" for name in new_tasks_found])
                 
@@ -101,17 +103,15 @@ def bot_thong_bao_task():
                 msg += f"\n\n🔗 <a href='https://hub.axisrobotics.ai/?tab=hub'>Mở Axis Hub</a>"
                 
                 send_telegram_message(msg)
-                print(f"-> Đã báo cáo {len(new_tasks_found)} task.")
             
-            # Xử lý xong lần quét đầu tiên
             if is_first_run:
-                is_first_run = True
+                is_first_run = False # QUAN TRỌNG: Phải chốt lại là False để các vòng sau nó biết đường báo cáo
                 print(f"Lần chạy đầu: Ghi nhớ {len(seen_task_ids)} task cũ. Bắt đầu rình task mới...")
                 
         except Exception as e:
             print("Lỗi vòng lặp:", e)
         
-        # Ngủ 60 giây rồi mới quay lại quét tiếp
+        # Đã đổi thành 30 giây theo ý bạn
         time.sleep(30)
 
 # ==========================================
