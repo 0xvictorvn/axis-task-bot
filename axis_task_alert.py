@@ -105,7 +105,7 @@ def bot_thong_bao_task():
             
             # Xử lý xong lần quét đầu tiên
             if is_first_run:
-                is_first_run = False
+                is_first_run = True
                 print(f"Lần chạy đầu: Ghi nhớ {len(seen_task_ids)} task cũ. Bắt đầu rình task mới...")
                 
         except Exception as e:
