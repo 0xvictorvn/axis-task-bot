@@ -8,7 +8,7 @@ from threading import Thread
 # PHẦN 1: CẤU HÌNH & TRÍ NHỚ CỦA BOT
 # ==========================================
 # Đã dán sẵn Token của Victor, Render tự nhận diện PORT
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN', '8655926285:AAHURVEuQ6WC4EJjybG7Io29ENMN8HQA8M8')
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN', '8655926285:AAHuLlGex98_UiAqpKVdDBBrNvxrV6sodKw')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '1246404230')
 PORT = int(os.getenv('PORT', 8080)) # Render sẽ tự động bơm cổng mạng vào đây
 
