@@ -57,7 +57,7 @@ def check_telegram_commands():
 
                         if chat_id == TELEGRAM_CHAT_ID:
                             if text == "/status" or text == "check":
-                                uptime_msg = "✅ <b>BÁO CÁO:</b> Bot Render vẫn đang thức và làm việc!\n"
+                                uptime_msg = "✅ <b>BÁO CÁO:</b> Bot Axis Task Alert vẫn đang thức và làm việc!\n"
                                 uptime_msg += f"📡 Trạng thái Axis: {'🔴 Đang lag/sập' if is_website_down else '🟢 Rất mượt'}"
                                 send_telegram_message(uptime_msg)
         except:
