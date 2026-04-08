@@ -57,7 +57,7 @@ def check_telegram_commands():
 
                         if chat_id == TELEGRAM_CHAT_ID:
                             if text == "/status" or text == "check":
-                                uptime_msg = "✅ <b>BÁO CÁO:</b> Bot Axis Task Alert vẫn đang thức và làm việc!\n"
+                                uptime_msg = "✅ <b>BÁO CÁO:</b> Axis Task Alert Bot vẫn đang thức và làm việc!\n"
                                 uptime_msg += f"📡 Trạng thái Axis: {'🔴 Đang lag/sập' if is_website_down else '🟢 Rất mượt'}"
                                 send_telegram_message(uptime_msg)
         except:
@@ -95,7 +95,7 @@ def bot_thong_bao_task():
     global seen_task_ids, notified_600_tasks
     is_first_run = True 
     print("Bắt đầu khởi chạy vòng lặp check task (20s/lần)...")
-    send_telegram_message("🚀 <b>BOT ĐÃ ON:</b> Hệ thống Render đã khởi động. Tốc độ: 20s/quét.")
+    send_telegram_message("🚀 <b>BOT ĐÃ ON:</b> Hệ thống đã khởi động. Tốc độ: 20s/quét.")
     
     while True:
         try:
