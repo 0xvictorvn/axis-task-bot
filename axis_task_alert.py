@@ -7,10 +7,9 @@ from threading import Thread
 # ==========================================
 # PHẦN 1: CẤU HÌNH & TRÍ NHỚ CỦA BOT
 # ==========================================
-# Đã dán sẵn Token của Victor, Render tự nhận diện PORT
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN', '8655926285:AAHuLlGex98_UiAqpKVdDBBrNvxrV6sodKw')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '1246404230')
-PORT = int(os.getenv('PORT', 8080)) # Render sẽ tự động bơm cổng mạng vào đây
+PORT = int(os.getenv('PORT', 8080)) 
 
 seen_task_ids = set()           # Nhớ task mới
 notified_600_tasks = set()      # Nhớ task đã đạt 600 slot
@@ -104,17 +103,24 @@ def bot_thong_bao_task():
 
             for task in tasks:
                 task_id = task.get('id') or task.get('_id')
+                
+                # --- LỌC TASK DEMO (ID = 20) ---
+                if str(task_id) == "20":
+                    continue # Bỏ qua không xử lý task này
+                
                 task_name = task.get('title') or task.get('name') or 'Task không tên'
                 slot_completed = task.get('slot_completed', 0)
                 
                 if not task_id: continue
                 task_link = f"https://hub.axisrobotics.ai/action?id={task_id}"
                 
+                # 1. Kiểm tra task mới
                 if task_id not in seen_task_ids:
                     seen_task_ids.add(task_id) 
                     if not is_first_run:
                         new_tasks_found.append(f"🔹 <a href='{task_link}'>{task_name}</a>")
                         
+                # 2. Kiểm tra mốc 600 slot
                 if slot_completed >= 600 and task_id not in notified_600_tasks:
                     notified_600_tasks.add(task_id)
                     if not is_first_run:
