@@ -56,9 +56,34 @@ def check_telegram_commands():
 
                         if chat_id == TELEGRAM_CHAT_ID:
                             if text == "/status" or text == "check":
-                                uptime_msg = "✅ <b>BÁO CÁO:</b> Axis Task Alert Bot vẫn đang thức và làm việc!\n"
+                                uptime_msg = "✅ <b>BÁO CÁO:</b> Axis Task Alert Bot vẫn đang thức!\n"
                                 uptime_msg += f"📡 Trạng thái Axis: {'🔴 Đang lag/sập' if is_website_down else '🟢 Rất mượt'}"
                                 send_telegram_message(uptime_msg)
+                            
+                            # --- LỆNH KIỂM TRA SLOT HIỆN TẠI ---
+                            elif text == "/slots" or text == "slots":
+                                tasks = get_axis_tasks()
+                                
+                                # Xử lý trường hợp "Trắng bảng"
+                                if not tasks:
+                                    send_telegram_message("⚠️ <b>HIỆN TẠI TRẮNG BẢNG:</b> Không có task nào đang mở trên Axis lúc này.")
+                                else:
+                                    slot_msg = "📊 <b>TÌNH TRẠNG SLOT THỰC TẾ:</b>\n\n"
+                                    for task in tasks:
+                                        task_id = task.get('id') or task.get('_id')
+                                        if str(task_id) == "20": continue # Bỏ qua task demo
+                                        
+                                        name = task.get('title') or task.get('name') or 'Task không tên'
+                                        completed = int(task.get('slot_completed', 0))
+                                        total = int(task.get('total_slots') or task.get('max_slots') or task.get('slots') or task.get('limit') or 0)
+                                        
+                                        # Định dạng hiển thị Slot / Max Slot
+                                        if total > 0:
+                                            slot_msg += f"🔹 <b>{name}</b>\n   └ Tiến độ: <b>{completed}/{total}</b> slots\n\n"
+                                        else:
+                                            slot_msg += f"🔹 <b>{name}</b>\n   └ Tiến độ: <b>{completed}/?</b> slots (Không rõ giới hạn)\n\n"
+                                            
+                                    send_telegram_message(slot_msg)
         except:
             pass
         time.sleep(2)
@@ -106,10 +131,14 @@ def bot_thong_bao_task():
                 
                 # --- LỌC TASK DEMO (ID = 20) ---
                 if str(task_id) == "20":
-                    continue # Bỏ qua không xử lý task này
+                    continue 
                 
                 task_name = task.get('title') or task.get('name') or 'Task không tên'
-                slot_completed = task.get('slot_completed', 0)
+                slot_completed = int(task.get('slot_completed', 0))
+                total_slots = int(task.get('total_slots') or task.get('max_slots') or task.get('slots') or task.get('limit') or 0)
+                
+                # Format text hiển thị
+                slot_text = f"{slot_completed}/{total_slots}" if total_slots > 0 else f"{slot_completed}"
                 
                 if not task_id: continue
                 task_link = f"https://hub.axisrobotics.ai/action?id={task_id}"
@@ -124,7 +153,7 @@ def bot_thong_bao_task():
                 if slot_completed >= 600 and task_id not in notified_600_tasks:
                     notified_600_tasks.add(task_id)
                     if not is_first_run:
-                        tasks_hit_600.append(f"🔥 <a href='{task_link}'>{task_name}</a> <b>({slot_completed} slots)</b>")
+                        tasks_hit_600.append(f"🔥 <a href='{task_link}'>{task_name}</a> <b>({slot_text} slots)</b>")
             
             if new_tasks_found:
                 msg_new = f"📢 <b>CÓ {len(new_tasks_found)} TASK MỚI:</b>\n\n" + "\n".join(new_tasks_found)
