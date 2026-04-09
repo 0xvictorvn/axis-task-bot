@@ -33,7 +33,7 @@ def send_msg(text):
     except: pass
 
 def telegram_listener():
-    """Luồng lắng nghe lệnh từ bạn (Đã tối ưu tốc độ)"""
+    """Luồng lắng nghe lệnh từ bạn"""
     last_id = 0
     while True:
         try:
@@ -52,17 +52,20 @@ def telegram_listener():
                         send_msg(f"✅ <b>BÁO CÁO:</b> Bot vẫn đang canh gác!\n📡 Trạng thái Axis: {'🔴 Đang lag/sập' if is_website_down else '🟢 Rất mượt'}")
                     
                     elif text in ["/slots", "slots"]:
-                        # ĐỌC TỪ CACHE -> TRẢ LỜI NGAY LẬP TỨC KHÔNG CẦN CHỜ AXIS
                         if not latest_tasks_cache:
                             send_msg("⚠️ <b>HIỆN TẠI TRẮNG BẢNG:</b> Không có task nào (hoặc web đang sập).")
                         else:
                             out = "📊 <b>TÌNH TRẠNG SLOT THỰC TẾ:</b>\n\n"
                             for t in latest_tasks_cache:
+                                tid = str(t.get('id') or t.get('_id'))
                                 name = t.get('title') or t.get('name') or 'Task'
                                 done = int(t.get('slot_completed', 0))
                                 total = int(t.get('slot') or t.get('total_slots') or t.get('limit') or 0)
                                 prog = f"{done}/{total}" if total > 0 else f"{done}/?"
-                                out += f"🔹 <b>{name}</b>\n   └ Tiến độ: <b>{prog}</b> slots\n\n"
+                                
+                                # ĐÃ GẮN LINK VÀO TÊN TASK CHO LỆNH /SLOTS
+                                link = f"https://hub.axisrobotics.ai/action?id={tid}"
+                                out += f"🔹 <a href='{link}'><b>{name}</b></a>\n   └ Tiến độ: <b>{prog}</b> slots\n\n"
                             send_msg(out.strip())
         except:
             time.sleep(2)
@@ -85,17 +88,16 @@ def main_loop():
                                headers={'user-agent': 'Mozilla/5.0'}, timeout=15)
             res.raise_for_status()
             
-            # --- XỬ LÝ KHI WEB SỐNG LẠI ---
             if is_website_down:
                 send_msg("🟢 <b>TIN VUI:</b> Web Axis đã mượt trở lại!")
                 is_website_down = False
             fails = 0
             
-            # Lấy data và LỌC BỎ NGAY TASK 20 từ vòng gửi xe
+            # Lọc bỏ task rác 20
             raw_tasks = res.json().get('tasks', [])
             valid_tasks = [t for t in raw_tasks if str(t.get('id') or t.get('_id')) not in ["20", "None"]]
             
-            # Lưu vào Cache cho lệnh /slots dùng
+            # Cập nhật Cache
             latest_tasks_cache = valid_tasks
             
             new_msg, hot_msg = [], []
@@ -108,17 +110,16 @@ def main_loop():
                 prog_text = f"{done}/{total}" if total > 0 else f"{done}"
                 link = f"https://hub.axisrobotics.ai/action?id={tid}"
                 
-                # 1. Bắt task mới
+                # 1. GẮN LINK KHI BÁO TASK MỚI
                 if tid not in seen_task_ids:
                     seen_task_ids.add(tid)
                     if not first_run: new_msg.append(f"🔹 <a href='{link}'>{name}</a>")
                 
-                # 2. Bắt task 600 slot
+                # 2. GẮN LINK KHI BÁO 600 SLOT
                 if done >= 600 and tid not in notified_600_tasks:
                     notified_600_tasks.add(tid)
                     if not first_run: hot_msg.append(f"🔥 <a href='{link}'>{name}</a> <b>({prog_text} slots)</b>")
             
-            # Bắn thông báo nếu có
             if new_msg: send_msg("📢 <b>CÓ TASK MỚI:</b>\n\n" + "\n".join(new_msg))
             if hot_msg: send_msg("⚠️ <b>HOT: TASK ĐẠT >600 SLOT:</b>\n\n" + "\n".join(hot_msg))
             
@@ -129,7 +130,7 @@ def main_loop():
             if fails == 3 and not is_website_down:
                 send_msg("🔴 <b>CẢNH BÁO:</b> Web Axis đang sập/lag!")
                 is_website_down = True
-                latest_tasks_cache = [] # Xóa cache khi sập
+                latest_tasks_cache = [] 
                 
         time.sleep(20)
 
@@ -137,9 +138,6 @@ def main_loop():
 # 4. KHỞI ĐỘNG
 # ==========================================
 if __name__ == "__main__":
-    # Bật web giả cho Render
     Thread(target=lambda: app.run(host='0.0.0.0', port=PORT), daemon=True).start()
-    # Bật luồng nghe lệnh Telegram
     Thread(target=telegram_listener, daemon=True).start()
-    # Chạy vòng lặp quét task
     main_loop()
