@@ -62,28 +62,33 @@ def check_telegram_commands():
                             
                             # --- LỆNH KIỂM TRA SLOT HIỆN TẠI ---
                             elif text == "/slots" or text == "slots":
-                                tasks = get_axis_tasks()
+                                raw_tasks = get_axis_tasks()
                                 
-                                # Xử lý trường hợp "Trắng bảng"
-                                if not tasks:
-                                    send_telegram_message("⚠️ <b>HIỆN TẠI TRẮNG BẢNG:</b> Không có task nào đang mở trên Axis lúc này.")
+                                # BƯỚC LỌC ĐẦU TIÊN: Lấy ra các task hợp lệ (Khác 20)
+                                valid_tasks = []
+                                for t in raw_tasks:
+                                    tid = str(t.get('id') or t.get('_id'))
+                                    if tid and tid != "20":
+                                        valid_tasks.append(t)
+                                
+                                # Xử lý trường hợp "Trắng bảng" sau khi đã lọc
+                                if not valid_tasks:
+                                    send_telegram_message("⚠️ <b>HIỆN TẠI:</b> Không có task nào đang mở trên Axis lúc này.")
                                 else:
                                     slot_msg = "📊 <b>TÌNH TRẠNG SLOT THỰC TẾ:</b>\n\n"
-                                    for task in tasks:
-                                        task_id = task.get('id') or task.get('_id')
-                                        if str(task_id) == "20": continue # Bỏ qua task demo
-                                        
+                                    for task in valid_tasks:
                                         name = task.get('title') or task.get('name') or 'Task không tên'
                                         completed = int(task.get('slot_completed', 0))
-                                        total = int(task.get('total_slots') or task.get('max_slots') or task.get('slots') or task.get('limit') or 0)
                                         
-                                        # Định dạng hiển thị Slot / Max Slot
+                                        # Lấy chính xác biến "slot" dựa trên JSON thực tế
+                                        total = int(task.get('slot') or task.get('total_slots') or task.get('limit') or 0)
+                                        
                                         if total > 0:
                                             slot_msg += f"🔹 <b>{name}</b>\n   └ Tiến độ: <b>{completed}/{total}</b> slots\n\n"
                                         else:
-                                            slot_msg += f"🔹 <b>{name}</b>\n   └ Tiến độ: <b>{completed}/?</b> slots (Không rõ giới hạn)\n\n"
+                                            slot_msg += f"🔹 <b>{name}</b>\n   └ Tiến độ: <b>{completed}/?</b> slots\n\n"
                                             
-                                    send_telegram_message(slot_msg)
+                                    send_telegram_message(slot_msg.strip())
         except:
             pass
         time.sleep(2)
@@ -127,20 +132,17 @@ def bot_thong_bao_task():
             new_tasks_found, tasks_hit_600 = [], []
 
             for task in tasks:
-                task_id = task.get('id') or task.get('_id')
+                task_id = str(task.get('id') or task.get('_id'))
                 
-                # --- LỌC TASK DEMO (ID = 20) ---
-                if str(task_id) == "20":
+                # --- CHẶN ĐỨNG TASK DEMO 20 TẠI ĐÂY ---
+                if task_id == "20" or task_id == "None":
                     continue 
                 
                 task_name = task.get('title') or task.get('name') or 'Task không tên'
                 slot_completed = int(task.get('slot_completed', 0))
-                total_slots = int(task.get('total_slots') or task.get('max_slots') or task.get('slots') or task.get('limit') or 0)
+                total_slots = int(task.get('slot') or task.get('total_slots') or task.get('limit') or 0)
                 
-                # Format text hiển thị
                 slot_text = f"{slot_completed}/{total_slots}" if total_slots > 0 else f"{slot_completed}"
-                
-                if not task_id: continue
                 task_link = f"https://hub.axisrobotics.ai/action?id={task_id}"
                 
                 # 1. Kiểm tra task mới
