@@ -60,7 +60,7 @@ def telegram_listener():
                 
                 # 2. SLOTS (Realtime Cache)
                 elif text in ["/slots", "slots"]:
-                    if not latest_tasks_cache: send_msg("⚠️ <b>TRẮNG BẢNG:</b> Không có task nào trên web.")
+                    if not latest_tasks_cache: send_msg("⚠️ <b>HIỆN TẠI:</b> Không có task nào trên web.")
                     else:
                         out = "📊 <b>SLOT THỰC TẾ:</b>\n\n"
                         for t in latest_tasks_cache:
