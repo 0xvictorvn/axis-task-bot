@@ -115,7 +115,7 @@ def main_loop():
             fails = 0
             
             raw_data = res.json().get('tasks', [])
-            current_tasks = [t for t in raw_data if str(t.get('id') or t.get('_id')) not in ["20", "None"]]
+            current_tasks = [t for t in raw_data if str(t.get('id') or t.get('_id')) not in ["20", "99", "293", "None"]]
             current_ids = {str(t.get('id') or t.get('_id')) for t in current_tasks}
             
             # --- LOGIC: PHÁT HIỆN TASK BIẾN MẤT VÀ DỌN RÁC ---
